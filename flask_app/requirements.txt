@@ -1,0 +1,8 @@
+requests
+flask
+gunicorn
+rpi.gpio
+flask-restplus
+rq
+rq_dashboard
+redis

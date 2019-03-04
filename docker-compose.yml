@@ -1,0 +1,37 @@
+version: '3'
+services:
+  redis:
+    image: redis:latest
+    restart: always
+  flask-app:
+    build: ./flask_app
+    restart: always
+    devices:
+      - /dev/gpiomem
+    volumes:
+      - ./flask_app:/flask_app
+    ports:
+      - 5555:5555
+    environment:
+      - PYTHONUNBUFFERED:1
+    command: bash -c 'gunicorn -w 2 -b 0.0.0.0:5555 app:app --timeout 10000 --reload'
+  rq_worker:
+    build: ./flask_app
+    restart: always
+    devices:
+      - /dev/gpiomem
+    volumes:
+      - ./flask_app:/flask_app
+    ports:
+      - 6379:6379
+    command: python app.py worker
+  jupyterlab:
+    image: "kidig/rpi-jupyter-lab"
+    ports:
+      - 8889:8888
+    devices:
+      - /dev/gpiomem
+    volumes:
+      - ../:/root/notebooks
+    entrypoint: jupyter lab --no-browser --port 8888 --ip=0.0.0.0 --allow-root --NotebookApp.password='sha1:daba2b026696:b3fb474af010622c27f90aee5420698295d1260d'
+    
